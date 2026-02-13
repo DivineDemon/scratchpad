@@ -74,42 +74,39 @@ Key constraints / features:
 - If access token / installation token is revoked or expired → detect failure, prompt to re-install or re-authorize
 - Handle repos too large or unsupported (binary files, monorepos) gracefully with errors or partial fetch
 
-## 5. Architecture & Components (Auth + Repo Access)
+## 5. Architecture & Components
 
-### 5.1 Modules / Layers
-
-- **Auth Layer**: NextAuth (providers, session, user)
-- GitHub App / Octokit Layer:
+- **Auth Layer:** NextAuth (providers, session, user)
+- **GitHub App / Octokit Layer:**
   - Function to check installation ID for a repo
   - Function to obtain installation token
   - Functions to fetch repo metadata, tree listing, file contents
-- **API Layer** (Next.js API routes or server actions):
-  - Endpoints:
-    - `GET /api/auth` (via NextAuth)
-    - `POST /api/check-installation`
-    - `GET /api/install-url`
-    - `POST /api/generate-readme` (enqueue job)
-    - `GET /api/job/:id/status` | `GET /api/job/:id/result`
-  - **DB / Persistence** (Prisma + Neon Postgres):
-    - Tables: `User` , `Installation` , `GenerationJob` , `ReadmeHistory`
-    - Store GitHub user info, installation IDs, job metadata, generated README text
-  - **Worker / Task Queue**:
-    - Job processor picks up GenerationJob tasks
-    - Uses GitHub access module to fetch repo
-    - Interacts with LLM module to generate README
-    - Saves to DB, triggers email notification
-  - **Email / Notification Module**:
-    - Send email via external service (SendGrid / SES / Mailgun)
-    - Template includes job status + link to view result
-  - **Frontend / UI:**
-    - Login page
-    - Dashboard / repo selection
-    - Installation prompt / status
-    - Job status page
-    - History / previous README viewer
-    - Download / copy button
+- **API Layer (Next.js API routes or server actions):**
+  - `GET /api/auth` (via NextAuth)
+  - `POST /api/check-installation`
+  - `GET /api/install-url`
+  - `POST /api/generate-readme` (enqueue job)
+  - `GET /api/job/:id/status` | `GET /api/job/:id/result`
+- **DB / Persistence (Prisma + Neon Postgres):**
+  - Tables: `User` , `Installation` , `GenerationJob` , `ReadmeHistory`
+  - Store GitHub user info, installation IDs, job metadata, generated README text
+- **Worker / Task Queue:**
+  - Job processor picks up GenerationJob tasks
+  - Uses GitHub access module to fetch repo
+  - Interacts with LLM module to generate README
+  - Saves to DB, triggers email notification
+- **Email / Notification Module:**
+  - Send email via external service (SendGrid / SES / Mailgun)
+  - Template includes job status + link to view result
+- **Frontend / UI:**
+  - Login page
+  - Dashboard / repo selection
+  - Installation prompt / status
+  - Job status page
+  - History / previous README viewer
+  - Download / copy button
 
-# 5. Prisma Schema
+## 6. Prisma Schema
 
 ```
 model User {
@@ -160,7 +157,7 @@ enum JobStatus {
 }
 ```
 
-# 6. UX / Edge Cases & Error Handling
+## 7. UX / Edge Cases & Error Handling
 
 - If app is not installed for a particular repo: show a clear “Install Clio for this repo / org” prompt
 - If user lacks permission (private repo but app not installed): explain the steps
